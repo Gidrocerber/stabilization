@@ -1,0 +1,151 @@
+#VRML_SIM R2025a utf8 
+
+PROTO Gangway [
+  field SFVec3f    translation    0 0 0
+  field SFRotation rotation       0 1 0 0
+  field SFString   name           "gangway"
+  field SFColor    color          0.8 0.8 0.8
+  field SFFloat    length         45.0
+  field SFFloat    width          2.0
+  field SFString   controller     "stabilization_controller"
+  field SFBool     supervisor     TRUE
+]
+{
+  Robot {
+    translation IS translation
+    rotation IS rotation
+    name IS name
+    controller IS controller
+    supervisor IS supervisor
+
+    children [
+      DEF BASE Pose {
+        translation 0 0 0
+        children [
+          Shape {
+            appearance PBRAppearance {
+              baseColor 0.25 0.25 0.25
+              roughness 0.4
+              metalness 0.8
+            }
+            geometry Box { size 1.5 1.5 0.6 }
+          }
+        ]
+      }
+
+      HingeJoint {
+        jointParameters HingeJointParameters {
+          axis 1 0 0
+          anchor 0 0 0.55
+          minStop -0.6
+          maxStop 0.6
+          dampingConstant 40
+          staticFriction 5
+        }
+
+        device [
+          RotationalMotor {
+            name "gangway_roll_motor"
+            maxVelocity 0.6
+            maxTorque 2000000
+          }
+          PositionSensor {
+            name "gangway_roll_sensor"
+          }
+        ]
+
+        endPoint Solid {
+          translation 0 0 0.55
+          boundingObject Cylinder { height 0.6 radius 0.7 }
+          physics Physics { mass 800 }
+
+          children [
+            Shape {
+              appearance PBRAppearance { baseColor 0.35 0.35 0.35 roughness 0.5 }
+              geometry Cylinder { height 0.4 radius 0.7 }
+            }
+
+            HingeJoint {
+              jointParameters HingeJointParameters {
+                axis 0 1 0
+                anchor 0 0 0
+                minStop -1.2
+                maxStop 0.4
+                dampingConstant 40
+                staticFriction 5
+              }
+
+              device [
+                RotationalMotor {
+                  name "gangway_pitch_motor"
+                  maxVelocity 0.6
+                  maxTorque 2000000
+                }
+                PositionSensor {
+                  name "gangway_pitch_sensor"
+                }
+              ]
+
+              endPoint DEF GANGWAY_END Solid {
+                translation 0 0 0
+                name "gangway_end"
+                model "gangway_end"
+
+                children [
+                  Pose {
+                    translation %<= fields.length.value / 2 >% 0 0
+                    children [
+                      Pose {
+                        translation 0 0 -0.1
+                        children [
+                          Shape {
+                            appearance PBRAppearance { baseColor 0.3 0.3 0.3 roughness 0.7 }
+                            geometry Box { size %<= fields.length.value >% %<= fields.width.value >% 0.05 }
+                          }
+                        ]
+                      }
+                      Pose {
+                        translation 0 %<= fields.width.value / 2 + 0.2 >% 0.3
+                        rotation 0 1 0 1.5708
+                        children [
+                          Shape {
+                            appearance PBRAppearance { baseColor 1 1 0 }
+                            geometry Cylinder { height %<= fields.length.value >% radius 0.04 }
+                          }
+                        ]
+                      }
+                      Pose {
+                        translation 0 %<= -(fields.width.value / 2 + 0.2) >% 0.3
+                        rotation 0 1 0 1.5708
+                        children [
+                          Shape {
+                            appearance PBRAppearance { baseColor 1 1 0 }
+                            geometry Cylinder { height %<= fields.length.value >% radius 0.04 }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+
+                physics Physics {
+                  mass 5200 
+                  centerOfMass %<= fields.length.value / 2 >% 0 0
+                }
+
+                boundingObject Pose {
+                  translation %<= fields.length.value / 2 >% 0 0
+                  children [
+                    Box { size %<= fields.length.value >% %<= fields.width.value >% 0.35 }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
+
+    physics Physics { density -1 mass 100 }
+  }
+}

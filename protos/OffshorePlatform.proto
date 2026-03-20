@@ -1,0 +1,116 @@
+#VRML_SIM R2025a utf8
+
+PROTO OffshorePlatform [
+  field SFVec3f    translation     30 0 0
+  field SFRotation rotation        0 0 1 0
+  field SFString   name            "offshore_platform"
+  field SFColor    primaryColor    1 0.5 0
+]
+{
+  Solid {
+    translation IS translation
+    rotation IS rotation
+    name IS name
+    children [
+      Pose {
+        translation -10 -10 -15
+        children [
+          Shape {
+            appearance PBRAppearance {
+              baseColor 0.5 0.5 0.5
+              roughness 1
+              metalness 0.3
+            }
+            geometry Cylinder {
+              height 40
+              radius 1.5
+            }
+          }
+        ]
+      }
+      
+      Pose {
+        translation 10 -10 -15
+        children [
+          Shape {
+            appearance PBRAppearance {
+              baseColor 0.5 0.5 0.5
+              roughness 1
+              metalness 0.3
+            }
+            geometry Cylinder {
+              height 40
+              radius 1.5
+            }
+          }
+        ]
+      }
+      
+      Pose {
+        translation -10 10 -15
+        children [
+          Shape {
+            appearance PBRAppearance {
+              baseColor 0.5 0.5 0.5
+              roughness 1
+              metalness 0.3
+            }
+            geometry Cylinder {
+              height 40
+              radius 1.5
+            }
+          }
+        ]
+      }
+      
+      Pose {
+        translation 10 10 -15
+        children [
+          Shape {
+            appearance PBRAppearance {
+              baseColor 0.5 0.5 0.5
+              roughness 1
+              metalness 0.3
+            }
+            geometry Cylinder {
+              height 40
+              radius 1.5
+            }
+          }
+        ]
+      }
+      
+      Pose {
+        translation 0 0 5
+        children [
+          Shape {
+            appearance PBRAppearance {
+              baseColor IS primaryColor
+              roughness 1
+            }
+            geometry Cylinder {
+              height 4
+              radius 22
+            }
+          }
+        ]
+      }
+    ]
+    
+    boundingObject Group {
+      children [
+        Pose {
+          translation 0 0 5
+          children [
+            Cylinder {
+              height 4
+              radius 22
+            }
+          ]
+        }
+      ]
+    }
+    
+    locked TRUE
+  }
+}

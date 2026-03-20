@@ -1,0 +1,99 @@
+#VRML_SIM R2025a utf8
+
+PROTO Barge [
+  field SFVec3f    translation    0 0 0
+  field SFRotation rotation       0 0 1 0
+  field SFString   name           "barge"
+  field SFColor    hullColor      0.6 0.6 0.6
+  field SFString   controller     "barge_physics"
+  field SFBool     supervisor     TRUE
+  field MFNode     extensionSlot  [] 
+]
+{
+  Robot {
+    translation IS translation
+    rotation IS rotation
+    name IS name
+    controller IS controller
+    supervisor IS supervisor
+    model "barge"
+    
+    children [
+      DEF BARGE_HULL Group {
+        children [
+          Pose {
+            translation 0 0 1.0
+            children [
+              Shape {
+                appearance PBRAppearance {
+                  baseColor IS hullColor
+                  roughness 0.7
+                }
+                geometry Box { size 20 8 2.0 }
+              }
+            ]
+          }
+          
+          Pose {
+            translation 0 0 2.0
+            children [
+              Shape {
+                appearance PBRAppearance { baseColor 0.8 0.8 0.8 roughness 0.8 }
+                geometry Box { size 20 8 0.2 }
+              }
+            ]
+          }
+          
+          Pose {
+            translation -4 0 3.0
+            children [
+              Shape {
+                appearance PBRAppearance { baseColor 0.8 0.8 0.9 roughness 0.5 }
+                geometry Box { size 4 5 2 }
+              }
+            ]
+          }
+
+          Pose {
+            translation 9.5 0 1.5
+            children [
+              Shape {
+                appearance PBRAppearance { baseColor IS hullColor }
+                geometry Sphere { radius 1.0 }
+              }
+            ]
+          }
+
+          Pose {
+            translation 7.5 0 6.025 
+            children [
+              Shape {
+                appearance PBRAppearance { baseColor 0.7 0.3 0.1 roughness 0.6 }
+                geometry Cylinder { height 8.05 radius 1.2 }
+              }
+              Pose {
+                translation 0 0 4.025
+                children IS extensionSlot
+              }
+            ]
+          }
+        ]
+      }
+    ]
+    
+    physics Physics {
+      density -1
+      mass 2000
+      centerOfMass 0 0 1
+    }
+    
+    boundingObject Group {
+      children [
+        Pose {
+          translation 0 0 1.0
+          children [ Box { size 20 8 2.0 } ]
+        }
+      ]
+    }
+  }
+}
