@@ -33,7 +33,6 @@ PROTO Barge [
               }
             ]
           }
-          
           Pose {
             translation 0 0 2.0
             children [
@@ -43,7 +42,6 @@ PROTO Barge [
               }
             ]
           }
-          
           Pose {
             translation -4 0 3.0
             children [
@@ -53,7 +51,6 @@ PROTO Barge [
               }
             ]
           }
-
           Pose {
             translation 9.5 0 1.5
             children [
@@ -63,7 +60,6 @@ PROTO Barge [
               }
             ]
           }
-
           Pose {
             translation 7.5 0 6.025 
             children [
@@ -82,16 +78,16 @@ PROTO Barge [
     ]
     
     physics Physics {
-      density -1
-      mass 2000
-      centerOfMass 0 0 1
+      mass 65000
+      centerOfMass 0 0 0.5
+      inertiaMatrix [2.8e6 8.5e6 9.2e6 0 0 0]
     }
     
     boundingObject Group {
       children [
         Pose {
-          translation 0 0 1.0
-          children [ Box { size 20 8 2.0 } ]
+          translation 0 0 0.8
+          children [ Box { size 20 8 1.6 } ]
         }
       ]
     }

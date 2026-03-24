@@ -46,8 +46,8 @@ PROTO Gangway [
         device [
           RotationalMotor {
             name "gangway_roll_motor"
-            maxVelocity 0.6
-            maxTorque 2000000
+            maxVelocity 2.0
+            maxTorque 50000
           }
           PositionSensor {
             name "gangway_roll_sensor"
@@ -57,7 +57,11 @@ PROTO Gangway [
         endPoint Solid {
           translation 0 0 0.55
           boundingObject Cylinder { height 0.6 radius 0.7 }
-          physics Physics { mass 800 }
+          physics Physics { 
+            mass 800
+            centerOfMass 0 0 0
+            inertiaMatrix [50 50 80 0 0 0]
+          }
 
           children [
             Shape {
@@ -78,8 +82,8 @@ PROTO Gangway [
               device [
                 RotationalMotor {
                   name "gangway_pitch_motor"
-                  maxVelocity 0.6
-                  maxTorque 2000000
+                  maxVelocity 2.0
+                  maxTorque 50000
                 }
                 PositionSensor {
                   name "gangway_pitch_sensor"
@@ -131,6 +135,12 @@ PROTO Gangway [
                 physics Physics {
                   mass 5200 
                   centerOfMass %<= fields.length.value / 2 >% 0 0
+                  inertiaMatrix [
+                    %<= 5200 * (fields.width.value*fields.width.value + 0.35*0.35) / 12 >% 
+                    %<= 5200 * (fields.length.value*fields.length.value + 0.35*0.35) / 12 >% 
+                    %<= 5200 * (fields.length.value*fields.length.value + fields.width.value*fields.width.value) / 12 >% 
+                    0 0 0
+                  ]
                 }
 
                 boundingObject Pose {
@@ -146,6 +156,11 @@ PROTO Gangway [
       }
     ]
 
-    physics Physics { density -1 mass 100 }
+    physics Physics { 
+      mass 100
+      centerOfMass 0 0 0.3
+    }
+    
+    boundingObject Box { size 1.5 1.5 0.6 }
   }
 }
