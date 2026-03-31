@@ -21,7 +21,7 @@ class WaveSpectrum:
 
         random.seed(42)
 
-        self.N = 64 
+        self.N = 512 
         self.components = []
         self._generate_spectrum()
 

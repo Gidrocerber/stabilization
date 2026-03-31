@@ -9,6 +9,10 @@ PROTO Gangway [
   field SFFloat    width          2.0
   field SFString   controller     "stabilization_controller"
   field SFBool     supervisor     TRUE
+  field SFFloat    actuator_lever_arm_roll  0.4
+  field SFFloat    actuator_lever_arm_pitch 0.4
+  field SFFloat    actuator_stroke_max      0.15
+  field SFFloat    actuator_max_force       50000
 ]
 {
   Robot {
@@ -47,7 +51,7 @@ PROTO Gangway [
           RotationalMotor {
             name "gangway_roll_motor"
             maxVelocity 2.0
-            maxTorque 50000
+            maxTorque IS actuator_max_force
           }
           PositionSensor {
             name "gangway_roll_sensor"
@@ -83,7 +87,7 @@ PROTO Gangway [
                 RotationalMotor {
                   name "gangway_pitch_motor"
                   maxVelocity 2.0
-                  maxTorque 50000
+                  maxTorque IS actuator_max_force
                 }
                 PositionSensor {
                   name "gangway_pitch_sensor"
