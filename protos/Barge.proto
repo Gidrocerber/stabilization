@@ -78,6 +78,7 @@ PROTO Barge [
     ]
     
     physics Physics {
+      density -1
       mass 65000
       centerOfMass 0 0 0.5
       inertiaMatrix [2.8e6 8.5e6 9.2e6 0 0 0]

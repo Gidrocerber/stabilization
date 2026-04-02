@@ -1,4 +1,4 @@
-#VRML_SIM R2025a utf8 
+#VRML_SIM R2025a utf8
 
 PROTO Gangway [
   field SFVec3f    translation    0 0 0
@@ -13,6 +13,7 @@ PROTO Gangway [
   field SFFloat    actuator_lever_arm_pitch 0.4
   field SFFloat    actuator_stroke_max      0.15
   field SFFloat    actuator_max_force       50000
+  field SFFloat    actuator_max_velocity    0.5
 ]
 {
   Robot {
@@ -28,13 +29,100 @@ PROTO Gangway [
         children [
           Shape {
             appearance PBRAppearance {
-              baseColor 0.25 0.25 0.25
+              baseColor IS color
               roughness 0.4
               metalness 0.8
             }
             geometry Box { size 1.5 1.5 0.6 }
           }
+
+          DEF ROLL_ACTUATOR_BASE_MOUNT Pose {
+            translation 0 %<= -fields.actuator_lever_arm_roll.value >% 0.3
+            children [
+              Shape {
+                appearance PBRAppearance { baseColor 0.9 0.3 0.3 }
+                geometry Sphere { radius 0.05 }
+              }
+            ]
+          }
+
+          DEF PITCH_ACTUATOR_BASE_MOUNT Pose {
+            translation %<= fields.actuator_lever_arm_pitch.value >% 0 0.3
+            children [
+              Shape {
+                appearance PBRAppearance { baseColor 0.3 0.9 0.3 }
+                geometry Sphere { radius 0.05 }
+              }
+            ]
+          }
         ]
+      }
+
+      SliderJoint {
+        jointParameters JointParameters {
+          axis 0 1 0
+          minStop %<= -fields.actuator_stroke_max.value >%
+          maxStop %<= fields.actuator_stroke_max.value >%
+          dampingConstant 1500
+          staticFriction 10
+        }
+        device [
+          LinearMotor {
+            name "gangway_roll_actuator"
+            maxForce IS actuator_max_force
+            maxVelocity IS actuator_max_velocity
+            minPosition %<= -fields.actuator_stroke_max.value >%
+            maxPosition %<= fields.actuator_stroke_max.value >%
+          }
+          PositionSensor {
+            name "gangway_roll_actuator_sensor"
+          }
+        ]
+        endPoint Solid {
+          translation 0 %<= -fields.actuator_lever_arm_roll.value >% 0.8
+          boundingObject Cylinder {
+            radius 0.06
+            height 0.70
+          }
+          physics Physics {
+            density -1
+            mass 20
+          }
+        }
+      }
+
+      SliderJoint {
+        jointParameters JointParameters {
+          axis 1 0 0
+          minStop %<= -fields.actuator_stroke_max.value >%
+          maxStop %<= fields.actuator_stroke_max.value >%
+          dampingConstant 1500
+          staticFriction 10
+        }
+        device [
+          LinearMotor {
+            name "gangway_pitch_actuator"
+            maxForce IS actuator_max_force
+            maxVelocity IS actuator_max_velocity
+            minPosition %<= -fields.actuator_stroke_max.value >%
+            maxPosition %<= fields.actuator_stroke_max.value >%
+          }
+          PositionSensor {
+            name "gangway_pitch_actuator_sensor"
+          }
+        ]
+        endPoint Solid {
+          translation %<= fields.actuator_lever_arm_pitch.value >% 0 0.95
+          rotation 0 0 1 1.5708
+          boundingObject Cylinder {
+            radius 0.06
+            height 0.70
+          }
+          physics Physics {
+            density -1
+            mass 20
+          }
+        }
       }
 
       HingeJoint {
@@ -46,12 +134,13 @@ PROTO Gangway [
           dampingConstant 40
           staticFriction 5
         }
-
         device [
           RotationalMotor {
             name "gangway_roll_motor"
-            maxVelocity 2.0
-            maxTorque IS actuator_max_force
+            minPosition -0.6
+            maxPosition 0.6
+            maxVelocity 1.0
+            maxTorque 120000
           }
           PositionSensor {
             name "gangway_roll_sensor"
@@ -61,7 +150,8 @@ PROTO Gangway [
         endPoint Solid {
           translation 0 0 0.55
           boundingObject Cylinder { height 0.6 radius 0.7 }
-          physics Physics { 
+          physics Physics {
+            density -1
             mass 800
             centerOfMass 0 0 0
             inertiaMatrix [50 50 80 0 0 0]
@@ -69,8 +159,21 @@ PROTO Gangway [
 
           children [
             Shape {
-              appearance PBRAppearance { baseColor 0.35 0.35 0.35 roughness 0.5 }
+              appearance PBRAppearance {
+                baseColor 0.35 0.35 0.35
+                roughness 0.5
+              }
               geometry Cylinder { height 0.4 radius 0.7 }
+            }
+
+            DEF ROLL_ACTUATOR_MOVING_MOUNT Pose {
+              translation 0 %<= fields.actuator_lever_arm_roll.value >% -0.1
+              children [
+                Shape {
+                  appearance PBRAppearance { baseColor 0.9 0.3 0.3 }
+                  geometry Sphere { radius 0.05 }
+                }
+              ]
             }
 
             HingeJoint {
@@ -82,12 +185,13 @@ PROTO Gangway [
                 dampingConstant 40
                 staticFriction 5
               }
-
               device [
                 RotationalMotor {
                   name "gangway_pitch_motor"
-                  maxVelocity 2.0
-                  maxTorque IS actuator_max_force
+                  minPosition -1.2
+                  maxPosition 0.4
+                  maxVelocity 1.0
+                  maxTorque 250000
                 }
                 PositionSensor {
                   name "gangway_pitch_sensor"
@@ -100,6 +204,16 @@ PROTO Gangway [
                 model "gangway_end"
 
                 children [
+                  DEF PITCH_ACTUATOR_MOVING_MOUNT Pose {
+                    translation %<= -fields.actuator_lever_arm_pitch.value >% 0 -0.1
+                    children [
+                      Shape {
+                        appearance PBRAppearance { baseColor 0.3 0.9 0.3 }
+                        geometry Sphere { radius 0.05 }
+                      }
+                    ]
+                  }
+
                   Pose {
                     translation %<= fields.length.value / 2 >% 0 0
                     children [
@@ -107,28 +221,41 @@ PROTO Gangway [
                         translation 0 0 -0.1
                         children [
                           Shape {
-                            appearance PBRAppearance { baseColor 0.3 0.3 0.3 roughness 0.7 }
-                            geometry Box { size %<= fields.length.value >% %<= fields.width.value >% 0.05 }
+                            appearance PBRAppearance {
+                              baseColor IS color
+                              roughness 0.7
+                            }
+                            geometry Box {
+                              size %<= fields.length.value >% %<= fields.width.value >% 0.05
+                            }
                           }
                         ]
                       }
+
                       Pose {
                         translation 0 %<= fields.width.value / 2 + 0.2 >% 0.3
                         rotation 0 1 0 1.5708
                         children [
                           Shape {
                             appearance PBRAppearance { baseColor 1 1 0 }
-                            geometry Cylinder { height %<= fields.length.value >% radius 0.04 }
+                            geometry Cylinder {
+                              height %<= fields.length.value >%
+                              radius 0.04
+                            }
                           }
                         ]
                       }
+
                       Pose {
                         translation 0 %<= -(fields.width.value / 2 + 0.2) >% 0.3
                         rotation 0 1 0 1.5708
                         children [
                           Shape {
                             appearance PBRAppearance { baseColor 1 1 0 }
-                            geometry Cylinder { height %<= fields.length.value >% radius 0.04 }
+                            geometry Cylinder {
+                              height %<= fields.length.value >%
+                              radius 0.04
+                            }
                           }
                         ]
                       }
@@ -137,12 +264,13 @@ PROTO Gangway [
                 ]
 
                 physics Physics {
-                  mass 5200 
+                  density -1
+                  mass 5200
                   centerOfMass %<= fields.length.value / 2 >% 0 0
                   inertiaMatrix [
-                    %<= 5200 * (fields.width.value*fields.width.value + 0.35*0.35) / 12 >% 
-                    %<= 5200 * (fields.length.value*fields.length.value + 0.35*0.35) / 12 >% 
-                    %<= 5200 * (fields.length.value*fields.length.value + fields.width.value*fields.width.value) / 12 >% 
+                    %<= 5200 * (fields.width.value * fields.width.value + 0.35 * 0.35) / 12 >%
+                    %<= 5200 * (fields.length.value * fields.length.value + 0.35 * 0.35) / 12 >%
+                    %<= 5200 * (fields.length.value * fields.length.value + fields.width.value * fields.width.value) / 12 >%
                     0 0 0
                   ]
                 }
@@ -150,7 +278,9 @@ PROTO Gangway [
                 boundingObject Pose {
                   translation %<= fields.length.value / 2 >% 0 0
                   children [
-                    Box { size %<= fields.length.value >% %<= fields.width.value >% 0.35 }
+                    Box {
+                      size %<= fields.length.value >% %<= fields.width.value >% 0.35
+                    }
                   ]
                 }
               }
@@ -160,11 +290,12 @@ PROTO Gangway [
       }
     ]
 
-    physics Physics { 
+    physics Physics {
+      density -1
       mass 100
       centerOfMass 0 0 0.3
     }
-    
+
     boundingObject Box { size 1.5 1.5 0.6 }
   }
 }
